@@ -100,25 +100,29 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--y);outline-offs
 <input type="file" id="fi" accept="image/*,application/pdf" multiple hidden>
 
 <script>
-// ===== วาง URL ของ Apps Script Web App ตรงนี้ (ถ้ายังไม่วาง จะเป็นโหมดทดลอง) =====
-const API='PASTE_URL_HERE';
-// ===========================================================================
-const DEF={title:'ส่งเรซูเม่',desc:'กรอกข้อมูลและแนบไฟล์ให้ครบ',qs:[
-{id:'q1',t:'text',l:'ชื่อ-นามสกุล',r:1},
-{id:'q2',t:'tel',l:'เบอร์โทร',r:1},
-{id:'q3',t:'choice',l:'ตำแหน่งที่สนใจ',r:1,o:['พนักงานขาย','แคชเชียร์','คลังสินค้า']},
-{id:'q4',t:'file',l:'แนบเรซูเม่ (PDF หรือรูป)',r:1},
-{id:'q5',t:'file',l:'รูปถ่าย',r:0}]};
-const TYPES={text:'ข้อความสั้น',long:'ข้อความยาว',tel:'เบอร์โทร',email:'อีเมล',choice:'เลือก 1 ข้อ',multi:'เลือกหลายข้อ',file:'อัปโหลดไฟล์'};
-const demo=API.includes('PASTE');
-const VIEWS=['form','report','admin'];
-const DEMO=[{ts:Date.now()-36e5,name:'สมชาย ใจดี',a:[{l:'ชื่อ-นามสกุล',v:'สมชาย ใจดี'},{l:'เบอร์โทร',v:'081-234-5678'},{l:'ตำแหน่งที่สนใจ',v:'พนักงานขาย'}]},{ts:Date.now()-864e5,name:'วิภา รักงาน',a:[{l:'ชื่อ-นามสกุล',v:'วิภา รักงาน'},{l:'ตำแหน่งที่สนใจ',v:'แคชเชียร์'}]}];
+// ===== วาง URL ของ Apps Script Web App ตรงนี้ =====
+const API = 'PASTE_URL_HERE';
+// ===============================================
+const DEF = {
+  title: 'ส่งเรซูเม่',
+  desc: 'กรอกข้อมูลและแนบไฟล์ให้ครบ',
+  qs: [
+    {id:'q1', t:'text', l:'ชื่อ-นามสกุล', r:1},
+    {id:'q2', t:'tel', l:'เบอร์โทร', r:1},
+    {id:'q3', t:'choice', l:'ตำแหน่งที่สนใจ', r:1, o:['พนักงานขาย','แคชเชียร์','คลังสินค้า']},
+    {id:'q4', t:'file', l:'แนบเรซูเม่ (PDF หรือรูป)', r:1},
+    {id:'q5', t:'file', l:'รูปถ่าย', r:0}
+  ]
+};
+const TYPES = {text:'ข้อความสั้น', long:'ข้อความยาว', tel:'เบอร์โทร', email:'อีเมล', choice:'เลือก 1 ข้อ', multi:'เลือกหลายข้อ', file:'อัปโหลดไฟล์'};
+const demo = API.includes('PASTE');
+const VIEWS = ['form','report','admin'];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let cfg=DEF,pin='',ans={},files={},view='form',draft=null,rows=[],cur='';
+let cfg = DEF, pin = '', ans = {}, files = {}, view = 'form', draft = null, rows = [], cur = '';
 
 function toast(s){const t=$('#t');t.textContent=s;t.classList.add('on');clearTimeout(t.k);t.k=setTimeout(()=>t.classList.remove('on'),2600)}
-async function call(b){if(demo)return{ok:1,rows:b.a=='list'?DEMO:[]};const r=await fetch(API,{method:'POST',body:JSON.stringify(b)});return r.json()}
+async function call(b){if(demo)return{ok:1,rows:[]};const r=await fetch(API,{method:'POST',body:JSON.stringify(b)});return r.json()}
 async function load(){
   if(!demo){try{const r=await(await fetch(API)).json();if(r.cfg)cfg=r.cfg}catch(e){toast('โหลดฟอร์มไม่สำเร็จ ลองรีเฟรช')}}
   render();
@@ -130,7 +134,7 @@ function render(){
   document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('on',i==vi));
   const m=$('#m'),g=$('#go');m.innerHTML='';g.style.display='none';
   if(view!='form'&&!pin)return gate(m);
-  ({form,report,admin})[view](m,g);
+  (({form,report,admin})[view])(m,g);
 }
 
 /* ---------- ฟอร์ม ---------- */
@@ -255,7 +259,7 @@ async function report(m){
   m.innerHTML=`<div class="hd"><span class="chip">● RESPONSES</span><h1>สรุปคำตอบ</h1><p>แตะชื่อเพื่อดูคำตอบและเรซูเม่</p></div><div class="st">${st.map(([l,v],i)=>`<div style="animation-delay:${i*70}ms"><b>${v}</b><small>${l}</small></div>`).join('')}</div><input id="sq" placeholder="🔍 ค้นหาชื่อหรือคำตอบ" value="${esc(q2)}"><div id="rl"></div>`;
   const list=first=>{
     const k=q2.trim().toLowerCase(),a=rows.filter(r=>!k||(r.name+JSON.stringify(r.a)).toLowerCase().includes(k));
-    $('#rl').innerHTML=a.length?a.map((r,i)=>`<div class="c pr" data-r="${rows.indexOf(r)}" style="${first?`animation-delay:${i*40}ms`:'animation:none'}"><div class="av">${esc((r.name||'?')[0])}</div><div style="flex:1;min-width:0"><b>${esc(r.name||'ไม่ระบุ')}</b><small>${dt(r.ts)}</small></div>${nf(r)?`<span class="b">📎 ${nf(r)}</span>`:''}</div>`).join(''):'<div class="c" style="text-align:center;opacity:.6">ยังไม่มีคำตอบ</div>';
+    $('#rl').innerHTML=a.length?a.map((r,i)=>`<div class="c pr" data-r="${rows.indexOf(r)}" style="${first?`animation-delay:${i*40}ms`:'animation:none'}"><div class="av">${esc((r.name||'?')[0])}</div><div style="flex:1;min-width:0"><b>${esc(r.name||'ไม่ระบุ')}</b><small>${dt(r.ts)}</small></div>${nf(r)?`<span class="b">📎 ${nf(r)}</span>`:''}</div>`).join(''):'<div class="c" style="text-align:center;opacity:.6">ยังไม่มีคำตอบจริงในระบบ</div>';
   };
   $('#sq').oninput=e=>{q2=e.target.value;list(0)};list(1);
   $('#rl').onclick=e=>{const c=e.target.closest('[data-r]');if(c)openResp(rows[+c.dataset.r])};
