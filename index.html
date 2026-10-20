@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F6CF3E">
+<title>Form Zone</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--y:#F6CF3E;--k:#141414;--k2:#242424;--k3:#2e2e2e;--sp:cubic-bezier(.32,.72,0,1)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:Prompt,system-ui,sans-serif;background:linear-gradient(180deg,#FBDD5E,#F2C230) fixed;color:#fff;min-height:100vh;padding-top:env(safe-area-inset-top)}
+.w{max-width:560px;margin:0 auto;padding:14px 14px 130px}
+.tabs{display:flex;gap:4px;padding:6px;background:#fff6c4;border-radius:99px;box-shadow:0 4px 16px #0002;position:relative}
+.tabs button{flex:1;border:0;background:none;font:600 14px Prompt;padding:11px;border-radius:99px;color:var(--k);z-index:1;cursor:pointer;transition:color .4s var(--sp)}
+.tabs button.on{color:#fff}
+#pill{position:absolute;top:6px;bottom:6px;left:6px;width:calc(50% - 8px);background:var(--k);border-radius:99px;transition:transform .55s var(--sp)}
+.hd{text-align:center;color:var(--k);margin:22px 0 4px}
+.chip{display:inline-block;background:#fff6c4;font:700 11px Prompt;padding:6px 14px;border-radius:99px;box-shadow:0 2px 8px #0002}
+.hd h1{font-size:28px;font-weight:800;margin:12px 0 4px}
+.hd p{margin:0;font-size:13px;opacity:.7}
+.pg{height:5px;background:#0002;border-radius:9px;margin:16px 6px 0;overflow:hidden}
+.pg i{display:block;height:100%;width:0;background:var(--k);border-radius:9px;transition:width .7s var(--sp)}
+.c{background:var(--k);border-radius:28px;padding:18px;margin-top:12px;box-shadow:0 10px 30px #0003;animation:up .8s var(--sp) both}
+@keyframes up{from{opacity:0;transform:translateY(26px) scale(.97)}}
+.h{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
+.n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--y);color:var(--k);display:grid;place-items:center;font-size:13px;font-weight:800}
+.b{margin-left:auto;flex:none;font-size:11px;color:var(--y);background:#f6cf3e26;padding:4px 10px;border-radius:99px;font-weight:500}
+input,textarea{width:100%;margin-top:12px;background:var(--k2);border:1.5px solid transparent;color:#fff;border-radius:16px;padding:14px;font:16px Prompt;outline:0;resize:none;transition:border-color .3s,background .3s}
+input:focus,textarea:focus{border-color:var(--y);background:var(--k3)}
+input:focus-visible,button:focus-visible{outline:2px solid var(--y);outline-offset:2px}
+::placeholder{color:#777}
+.ch{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ch span{padding:10px 16px;border-radius:99px;background:var(--k2);font-size:14px;cursor:pointer;user-select:none;transition:background .35s var(--sp),color .35s,transform .35s var(--sp)}
+.ch span:active{transform:scale(.92)}
+.ch span.on{background:var(--y);color:var(--k);font-weight:600}
+.up{margin-top:12px;border:2px dashed #555;border-radius:20px;padding:24px;text-align:center;color:#aaa;font-size:14px;cursor:pointer;transition:transform .4s var(--sp),border-color .3s}
+.up:active{transform:scale(.97);border-color:var(--y)}
+.up small{opacity:.6}
+.th{display:flex;gap:10px;flex-wrap:wrap}
+.th div{position:relative;width:78px;height:78px;margin-top:12px;border-radius:16px;background:var(--k2) center/cover;display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--y);animation:up .5s var(--sp)}
+.th i{position:absolute;top:-7px;right:-7px;width:24px;height:24px;border-radius:50%;background:#ef5545;color:#fff;font-style:normal;display:grid;place-items:center;font-size:11px;cursor:pointer}
+.go{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(532px,calc(100% - 28px));border:0;background:var(--k);color:#fff;font:700 16px Prompt;padding:18px;border-radius:22px;box-shadow:0 10px 30px #0006;cursor:pointer;transition:transform .4s var(--sp),opacity .3s;z-index:3}
+.go:active{transform:translateX(-50%) scale(.96)}
+.go:disabled{opacity:.6}
+.bt{width:100%;border:0;background:var(--y);color:var(--k);font:700 16px Prompt;padding:16px;border-radius:18px;margin-top:14px;cursor:pointer;transition:transform .4s var(--sp)}
+.bt:active{transform:scale(.96)}
+.bt.dl{background:var(--k2);color:#ef5545;margin-top:10px}
+.ar{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px}
+.ar button{border:0;background:var(--k2);color:#fff;width:36px;height:32px;border-radius:10px;cursor:pointer}
+.ar button:active{background:var(--y);color:var(--k)}
+.ar span{margin-left:auto;opacity:.45}
+.add{margin-top:12px;border:2px dashed #14141466;border-radius:24px;padding:18px;text-align:center;font-weight:700;color:var(--k);cursor:pointer;transition:transform .4s var(--sp)}
+.add:active{transform:scale(.97)}
+.rw{display:flex;justify-content:space-between;gap:10px;padding:12px 14px;margin-top:8px;background:var(--k2);border-radius:14px;color:#fff;text-decoration:none;font-size:14px}
+.rw small{opacity:.5}
+#bd{position:fixed;inset:0;background:#0007;opacity:0;pointer-events:none;transition:opacity .45s;z-index:4}
+#bd.on{opacity:1;pointer-events:auto}
+#sh{position:fixed;left:0;right:0;bottom:0;max-width:560px;margin:auto;background:var(--k);border-radius:32px 32px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .65s var(--sp);z-index:5;max-height:90vh;overflow:auto}
+#sh.on{transform:none}
+#t{position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translate(-50%,-140px);background:var(--k);color:#fff;padding:13px 22px;border-radius:99px;font-size:14px;font-weight:600;box-shadow:0 10px 30px #0005;transition:transform .6s var(--sp);z-index:9;max-width:92%;text-align:center}
+#t.on{transform:translate(-50%,0)}
+.ok{text-align:center;padding:48px 20px}
+.ok svg{width:104px}
+.ok circle{transform-box:fill-box;transform-origin:center;animation:pp .7s var(--sp) both}
+.ok path{stroke-dasharray:70;stroke-dashoffset:70;animation:dr .7s .3s var(--sp) forwards}
+@keyframes pp{from{transform:scale(0)}}
+@keyframes dr{to{stroke-dashoffset:0}}
+.ok h2{margin:14px 0 4px}
+.ok p{margin:0;opacity:.6;font-size:14px}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="tabs"><div id="pill"></div>
+    <button onclick="setView('form')">📝 ฟอร์ม</button>
+    <button onclick="setView('admin')">⚙️ Admin</button>
+  </div>
+  <div id="m"></div>
+</div>
+<button class="go" id="go"></button>
+<div id="bd" onclick="closeSheet();render()"></div>
+<div id="sh"></div>
+<div id="t"></div>
+<input type="file" id="fi" accept="image/*,application/pdf" multiple hidden>
+
+<script>
+// ===== วาง URL ของ Apps Script Web App ตรงนี้ (ถ้ายังไม่วาง จะเป็นโหมดทดลอง) =====
+const API='PASTE_URL_HERE';
+// ===========================================================================
+const DEF={title:'ส่งเรซูเม่',desc:'กรอกข้อมูลและแนบไฟล์ให้ครบ',qs:[
+{id:'q1',t:'text',l:'ชื่อ-นามสกุล',r:1},
+{id:'q2',t:'tel',l:'เบอร์โทร',r:1},
+{id:'q3',t:'choice',l:'ตำแหน่งที่สนใจ',r:1,o:['พนักงานขาย','แคชเชียร์','คลังสินค้า']},
+{id:'q4',t:'file',l:'แนบเรซูเม่ (PDF หรือรูป)',r:1},
+{id:'q5',t:'file',l:'รูปถ่าย',r:0}]};
+const TYPES={text:'ข้อความสั้น',long:'ข้อความยาว',tel:'เบอร์โทร',email:'อีเมล',choice:'เลือก 1 ข้อ',multi:'เลือกหลายข้อ',file:'อัปโหลดไฟล์'};
+const demo=API.includes('PASTE');
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let cfg=DEF,pin='',ans={},files={},view='form',draft=null,rows=[],cur='';
+
+function toast(s){const t=$('#t');t.textContent=s;t.classList.add('on');clearTimeout(t.k);t.k=setTimeout(()=>t.classList.remove('on'),2600)}
+async function call(b){if(demo)return{ok:1,rows:[]};const r=await fetch(API,{method:'POST',body:JSON.stringify(b)});return r.json()}
+async function load(){
+  if(!demo){try{const r=await(await fetch(API)).json();if(r.cfg)cfg=r.cfg}catch(e){toast('โหลดฟอร์มไม่สำเร็จ ลองรีเฟรช')}}
+  render();
+}
+function setView(v){view=v;render()}
+function render(){
+  $('#pill').style.transform=view=='form'?'':'translateX(calc(100% + 4px))';
+  document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('on',(i==0)==(view=='form')));
+  const m=$('#m'),g=$('#go');m.innerHTML='';g.style.display='none';
+  view=='form'?form(m,g):admin(m,g);
+}
+
+/* ---------- ฟอร์ม ---------- */
+const ok=q=>{const v=q.t=='file'?files[q.id]:ans[q.id];return Array.isArray(v)?v.length>0:!!String(v||'').trim()};
+function prog(){const r=cfg.qs.filter(q=>q.r);$('#pg').style.width=(r.length?r.filter(ok).length/r.length*100:100)+'%'}
+function th(id){
+  const e=$('#th_'+id);if(!e)return;
+  e.innerHTML=(files[id]||[]).map((f,i)=>{const im=f.m.startsWith('image');
+    return `<div style="${im?`background-image:url(${f.d})`:''}">${im?'':'PDF'}<i data-x="${id}:${i}">✕</i></div>`}).join('');
+}
+function form(m,g){
+  m.innerHTML=`<div class="hd"><span class="chip">● FORM ZONE</span><h1>${esc(cfg.title)}</h1><p>${esc(cfg.desc)}</p></div><div class="pg"><i id="pg"></i></div>`;
+  cfg.qs.forEach((q,i)=>{
+    const v=ans[q.id],c=document.createElement('div');c.className='c';c.style.animationDelay=i*80+'ms';
+    let body='';
+    if(q.t=='long')body=`<textarea rows="3" data-q="${q.id}">${esc(v)}</textarea>`;
+    else if(q.t=='choice'||q.t=='multi')body=`<div class="ch">${(q.o||[]).map(o=>`<span data-q="${q.id}" data-o="${esc(o)}" class="${(Array.isArray(v)?v.includes(o):v==o)?'on':''}">${esc(o)}</span>`).join('')}</div>`;
+    else if(q.t=='file')body=`<div class="up" data-f="${q.id}">📎 แตะเพื่อเลือกไฟล์หรือถ่ายรูป<br><small>PDF หรือรูปภาพ</small></div><div class="th" id="th_${q.id}"></div>`;
+    else body=`<input data-q="${q.id}" value="${esc(v)}" type="${q.t=='tel'?'tel':q.t=='email'?'email':'text'}">`;
+    c.innerHTML=`<div class="h"><div class="n">${i+1}</div>${esc(q.l)}<span class="b">${q.r?'จำเป็น':'ไม่บังคับ'}</span></div>`+body;
+    m.appendChild(c);th(q.id);
+  });
+  g.style.display='block';g.disabled=false;g.textContent='ส่งข้อมูล';g.onclick=send;prog();
+}
+$('#m').addEventListener('input',e=>{const id=e.target.dataset.q;if(id&&e.target.tagName!='SPAN'){ans[id]=e.target.value;prog()}});
+$('#m').addEventListener('click',e=>{
+  const t=e.target,o=t.closest('[data-o]'),f=t.closest('[data-f]'),x=t.closest('[data-x]');
+  if(o){
+    const q=cfg.qs.find(q=>q.id==o.dataset.q),v=o.dataset.o;
+    if(q.t=='multi'){const a=ans[q.id]=ans[q.id]||[],i=a.indexOf(v);i<0?a.push(v):a.splice(i,1);o.classList.toggle('on',i<0)}
+    else{ans[q.id]=v;o.parentNode.querySelectorAll('span').forEach(s=>s.classList.toggle('on',s==o))}
+    prog();
+  }
+  if(f){cur=f.dataset.f;$('#fi').click()}
+  if(x){const[id,i]=x.dataset.x.split(':');files[id].splice(+i,1);th(id);prog()}
+});
+const rd=f=>new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result);x.readAsDataURL(f)});
+const comp=f=>new Promise(res=>{
+  const im=new Image();
+  im.onload=()=>{const s=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement('canvas');
+    c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.82))};
+  im.onerror=()=>res(null);im.src=URL.createObjectURL(f);
+});
+$('#fi').onchange=async e=>{
+  for(const f of e.target.files){
+    if(f.size>12e6){toast('ไฟล์ใหญ่เกิน 12 MB');continue}
+    let d=null,n=f.name,m=f.type;
+    if(m.startsWith('image/')){d=await comp(f);m='image/jpeg';n=n.replace(/\.\w+$/,'')+'.jpg'}
+    else if(m=='application/pdf')d=await rd(f);
+    if(!d){toast('รองรับเฉพาะ PDF และรูปภาพ');continue}
+    (files[cur]=files[cur]||[]).push({n,m,d});
+  }
+  e.target.value='';th(cur);prog();
+};
+async function send(){
+  const q=cfg.qs.find(q=>q.r&&!ok(q));
+  if(q){toast('กรุณากรอก: '+q.l);return}
+  const g=$('#go');g.disabled=true;g.textContent='กำลังส่ง…';
+  const fl={};for(const k in files)if(files[k].length)fl[k]=files[k].map(f=>({n:f.n,m:f.m,d:f.d.split(',')[1]}));
+  const nm=cfg.qs.find(q=>q.t=='text');
+  try{
+    const r=await call({a:'submit',ans,files:fl,qs:cfg.qs.map(q=>({id:q.id,l:q.l})),name:nm?ans[nm.id]:''});
+    if(!r.ok)throw 0;
+    $('#m').innerHTML=`<div class="c ok"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#F6CF3E"/><path d="M30 52l14 14 27-30" fill="none" stroke="#141414" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg><h2>ส่งเรียบร้อยแล้ว</h2><p>ขอบคุณที่กรอกข้อมูล</p></div>`;
+    g.style.display='none';ans={};files={};
+  }catch(e){toast('ส่งไม่สำเร็จ ลองอีกครั้ง');g.disabled=false;g.textContent='ส่งข้อมูล'}
+}
+
+/* ---------- Admin ---------- */
+function admin(m,g){
+  if(!pin){
+    m.innerHTML=`<div class="c" style="margin-top:40px"><div class="h">🔒 สำหรับผู้ดูแล</div><input id="pn" type="password" inputmode="numeric" placeholder="รหัส Admin"><button class="bt" id="pb">เข้าสู่ระบบ</button></div>`;
+    $('#pb').onclick=async()=>{
+      const p=$('#pn').value;if(!p)return;
+      try{const r=await call({a:'list',pin:p});if(r.ok){pin=p;rows=r.rows||[];render()}else toast('รหัสไม่ถูกต้อง')}catch(e){toast('เชื่อมต่อไม่ได้')}
+    };return;
+  }
+  draft=draft||JSON.parse(JSON.stringify(cfg));
+  m.innerHTML=`<div class="c"><div class="h">✏️ ข้อมูลฟอร์ม</div><input id="at" placeholder="ชื่อฟอร์ม" value="${esc(draft.title)}"><input id="ads" placeholder="คำอธิบาย" value="${esc(draft.desc)}"></div>`
+  +draft.qs.map((q,i)=>`<div class="c" style="animation-delay:${i*50}ms" data-i="${i}"><div class="h"><div class="n">${i+1}</div><span style="flex:1">${esc(q.l)}</span><span class="b">${TYPES[q.t]}</span></div><div class="ar"><button data-mv="${i}:-1">▲</button><button data-mv="${i}:1">▼</button><span>แตะการ์ดเพื่อแก้ไข${q.r?' · จำเป็น':''}</span></div></div>`).join('')
+  +`<div class="add" id="aa">+ เพิ่มคำถาม</div><div class="c"><div class="h">📥 คำตอบล่าสุด</div>${rows.length?rows.map(r=>`<a class="rw" href="${esc(r[3])}" target="_blank" rel="noopener"><b>${esc(r[1]||'ไม่ระบุ')}</b><small>${esc(r[0])}</small></a>`).join(''):'<p style="opacity:.5;margin:12px 0 0;font-size:14px">ยังไม่มีคำตอบ</p>'}</div>`;
+  g.style.display='block';g.disabled=false;g.textContent='บันทึกฟอร์ม';g.onclick=save;
+  $('#at').oninput=e=>draft.title=e.target.value;
+  $('#ads').oninput=e=>draft.desc=e.target.value;
+  $('#aa').onclick=()=>{draft.qs.push({id:'q'+Date.now(),t:'text',l:'คำถามใหม่',r:0});openSheet(draft.qs.length-1)};
+  m.querySelectorAll('[data-i]').forEach(c=>c.onclick=e=>{
+    const mv=e.target.closest('[data-mv]');
+    if(mv){const[i,d]=mv.dataset.mv.split(':').map(Number),j=i+d;if(j<0||j>=draft.qs.length)return;[draft.qs[i],draft.qs[j]]=[draft.qs[j],draft.qs[i]];render();return}
+    openSheet(+c.dataset.i);
+  });
+}
+function openSheet(i){
+  const q=draft.qs[i],s=$('#sh');
+  s.innerHTML=`<div class="h">แก้ไขคำถาม</div><input id="el" value="${esc(q.l)}" placeholder="ข้อความคำถาม"><div class="ch">${Object.entries(TYPES).map(([k,v])=>`<span data-t="${k}" class="${q.t==k?'on':''}">${v}</span>`).join('')}</div><textarea id="eo" rows="3" placeholder="ตัวเลือก บรรทัดละ 1 ข้อ">${esc((q.o||[]).join('\n'))}</textarea><div class="ch"><span id="er" class="${q.r?'on':''}">บังคับกรอก</span></div><button class="bt" id="es">เสร็จ</button><button class="bt dl" id="ex">ลบคำถามนี้</button>`;
+  const op=()=>$('#eo').style.display=/choice|multi/.test(q.t)?'block':'none';op();
+  s.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{q.t=b.dataset.t;s.querySelectorAll('[data-t]').forEach(x=>x.classList.toggle('on',x==b));op()});
+  $('#er').onclick=e=>{q.r=q.r?0:1;e.target.classList.toggle('on',!!q.r)};
+  $('#es').onclick=()=>{
+    q.l=$('#el').value.trim()||'คำถาม';
+    q.o=$('#eo').value.split('\n').map(x=>x.trim()).filter(Boolean);
+    if(/choice|multi/.test(q.t)&&!q.o.length)q.o=['ตัวเลือก 1','ตัวเลือก 2'];
+    closeSheet();render();
+  };
+  $('#ex').onclick=()=>{draft.qs.splice(i,1);closeSheet();render()};
+  s.classList.add('on');$('#bd').classList.add('on');
+}
+function closeSheet(){$('#sh').classList.remove('on');$('#bd').classList.remove('on')}
+async function save(){
+  const g=$('#go');g.disabled=true;g.textContent='กำลังบันทึก…';
+  try{const r=await call({a:'save',pin,cfg:draft});if(!r.ok)throw 0;cfg=JSON.parse(JSON.stringify(draft));toast('บันทึกแล้ว ✓')}
+  catch(e){toast('บันทึกไม่สำเร็จ')}
+  g.disabled=false;g.textContent='บันทึกฟอร์ม';
+}
+load();
+</script>
+</body>
+</html>
