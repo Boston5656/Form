@@ -52,8 +52,6 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--y);outline-offs
 .ar span{margin-left:auto;opacity:.45}
 .add{margin-top:12px;border:2px dashed #14141466;border-radius:24px;padding:18px;text-align:center;font-weight:700;color:var(--k);cursor:pointer;transition:transform .4s var(--sp)}
 .add:active{transform:scale(.97)}
-.rw{display:flex;justify-content:space-between;gap:10px;padding:12px 14px;margin-top:8px;background:var(--k2);border-radius:14px;color:#fff;text-decoration:none;font-size:14px}
-.rw small{opacity:.5}
 #bd{position:fixed;inset:0;background:#0007;opacity:0;pointer-events:none;transition:opacity .45s;z-index:4}
 #bd.on{opacity:1;pointer-events:auto}
 #sh{position:fixed;left:0;right:0;bottom:0;max-width:560px;margin:auto;background:var(--k);border-radius:32px 32px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .65s var(--sp);z-index:5;max-height:90vh;overflow:auto}
@@ -101,7 +99,7 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--y);outline-offs
 
 <script>
 // ===== วาง URL ของ Apps Script Web App ตรงนี้ =====
-const API = 'PASTE_URL_HERE';
+const API = 'https://script.google.com/macros/s/AKfycbwl5p8UYGPCzrEhO_qQYyFX6wPl6QJ1FCAoZQ2U5_HFmFO018V_9FMynD__2BhIQ9iY/exec';
 // ===============================================
 const DEF = {
   title: 'ส่งเรซูเม่',
@@ -122,9 +120,23 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 let cfg = DEF, pin = '', ans = {}, files = {}, view = 'form', draft = null, rows = [], cur = '';
 
 function toast(s){const t=$('#t');t.textContent=s;t.classList.add('on');clearTimeout(t.k);t.k=setTimeout(()=>t.classList.remove('on'),2600)}
-async function call(b){if(demo)return{ok:1,rows:[]};const r=await fetch(API,{method:'POST',body:JSON.stringify(b)});return r.json()}
+async function call(b){
+  if(demo)return{ok:1,rows:[]};
+  try{
+    const r=await fetch(API,{method:'POST',body:JSON.stringify(b)});
+    const res = await r.json();
+    return res;
+  }catch(e){
+    return {ok:0, err:String(e)};
+  }
+}
 async function load(){
-  if(!demo){try{const r=await(await fetch(API)).json();if(r.cfg)cfg=r.cfg}catch(e){toast('โหลดฟอร์มไม่สำเร็จ ลองรีเฟรช')}}
+  if(!demo){
+    try{
+      const r=await(await fetch(API)).json();
+      if(r.ok && r.cfg) cfg = r.cfg;
+    }catch(e){toast('โหลดฟอร์มไม่สำเร็จ ลองรีเฟรช')}
+  }
   render();
 }
 function setView(v){view=v;render()}
@@ -238,34 +250,48 @@ function closeSheet(){$('#sh').classList.remove('on');$('#bd').classList.remove(
 async function save(){
   const g=$('#go');g.disabled=true;g.textContent='กำลังบันทึก…';
   try{
-    const r=await call({a:'save',pin,cfg:draft});
-    if(!r.ok)throw 0;
+    const r=await call({a:'save', pin, cfg:draft});
+    if(!r || !r.ok) {
+      toast('บันทึกไม่สำเร็จ: ' + (r.err || 'PIN ผิดหรือลิงก์มีปัญหา'));
+      g.disabled=false;g.textContent='บันทึกฟอร์ม';
+      return;
+    }
     cfg=JSON.parse(JSON.stringify(draft));
     toast('บันทึกแล้ว ✓');
-    await load(); // ดึงค่าล่าสุดมาซิงค์ทันทีหลังบันทึก
+    await load();
   }
-  catch(e){toast('บันทึกไม่สำเร็จ')}
+  catch(e){toast('เกิดข้อผิดพลาดในการเชื่อมต่อ')}
   g.disabled=false;g.textContent='บันทึกฟอร์ม';
 }
 /* ---------- รายงาน ---------- */
 function gate(m){
   m.innerHTML=`<div class="c" style="margin-top:40px"><div class="h">🔒 สำหรับผู้ดูแล</div><input id="pn" type="password" inputmode="numeric" placeholder="รหัส Admin"><button class="bt" id="pb">เข้าสู่ระบบ</button></div>`;
-  $('#pb').onclick=async()=>{const p=$('#pn').value;if(!p)return;
-    try{const r=await call({a:'list',pin:p});if(r.ok){pin=p;rows=r.rows||[];render()}else toast('รหัสไม่ถูกต้อง')}catch(e){toast('เชื่อมต่อไม่ได้')}};
+  $('#pb').onclick=async()=>{
+    const p=$('#pn').value;if(!p)return;
+    try{
+      const r=await call({a:'list', pin:p});
+      if(r.ok){ pin=p; rows=r.rows||[]; render(); }
+      else { toast('รหัส PIN ไม่ถูกต้อง'); }
+    }catch(e){toast('เชื่อมต่อไม่ได้')}
+  };
 }
 let q2='';
 const nf=r=>r.a.reduce((n,x)=>n+(x.f?x.f.length:0),0);
 const dt=(ts,o)=>new Date(ts).toLocaleString('th-TH',o||{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 async function report(m){
   m.innerHTML=`<div class="hd"><span class="chip">● RESPONSES</span><h1>สรุปคำตอบ</h1><p>แตะชื่อเพื่อดูคำตอบและเรซูเม่</p></div><div class="c"><p style="margin:0;opacity:.5">กำลังโหลด…</p></div>`;
-  try{const r=await call({a:'list',pin});if(!r.ok)throw 0;rows=r.rows}catch(e){return toast('โหลดไม่สำเร็จ ลองอีกครั้ง')}
+  try{
+    const r=await call({a:'list', pin});
+    if(!r.ok) { toast('รหัส PIN หมดอายุหรือผิดพลาด'); view='form'; render(); return; }
+    rows = r.rows || [];
+  }catch(e){return toast('โหลดไม่สำเร็จ ลองใหม่อีกครั้ง')}
   if(view!='report')return;
   const d0=new Date().toDateString(),wk=Date.now()-6048e5;
   const st=[['ทั้งหมด',rows.length],['วันนี้',rows.filter(r=>new Date(r.ts).toDateString()==d0).length],['7 วัน',rows.filter(r=>r.ts>wk).length]];
   m.innerHTML=`<div class="hd"><span class="chip">● RESPONSES</span><h1>สรุปคำตอบ</h1><p>แตะชื่อเพื่อดูคำตอบและเรซูเม่</p></div><div class="st">${st.map(([l,v],i)=>`<div style="animation-delay:${i*70}ms"><b>${v}</b><small>${l}</small></div>`).join('')}</div><input id="sq" placeholder="🔍 ค้นหาชื่อหรือคำตอบ" value="${esc(q2)}"><div id="rl"></div>`;
   const list=first=>{
     const k=q2.trim().toLowerCase(),a=rows.filter(r=>!k||(r.name+JSON.stringify(r.a)).toLowerCase().includes(k));
-    $('#rl').innerHTML=a.length?a.map((r,i)=>`<div class="c pr" data-r="${rows.indexOf(r)}" style="${first?`animation-delay:${i*40}ms`:'animation:none'}"><div class="av">${esc((r.name||'?')[0])}</div><div style="flex:1;min-width:0"><b>${esc(r.name||'ไม่ระบุ')}</b><small>${dt(r.ts)}</small></div>${nf(r)?`<span class="b">📎 ${nf(r)}</span>`:''}</div>`).join(''):'<div class="c" style="text-align:center;opacity:.6">ยังไม่มีคำตอบจริงในระบบ</div>';
+    $('#rl').innerHTML=a.length?a.map((r,i)=>`<div class="c pr" data-r="${rows.indexOf(r)}" style="${first?`animation-delay:${i*40}ms`:'animation:none'}"><div class="av">${esc((r.name||'?')[0])}</div><div style="flex:1;min-width:0"><b>${esc(r.name||'ไม่ระบุ')}</b><small>${dt(r.ts)}</small></div>${nf(r)?`<span class="b">📎 ${nf(r)}</span>`:''}</div>`).join(''):'<div class="c" style="text-align:center;opacity:.6">ยังไม่มีคำตอบในระบบ</div>';
   };
   $('#sq').oninput=e=>{q2=e.target.value;list(0)};list(1);
   $('#rl').onclick=e=>{const c=e.target.closest('[data-r]');if(c)openResp(rows[+c.dataset.r])};
@@ -282,7 +308,7 @@ function openResp(r){
 async function showFile(d){
   const p=$('#pv');p.innerHTML='<p style="opacity:.5">กำลังโหลดไฟล์…</p>';
   try{
-    const r=await call({a:'file',pin,id:d.id});if(!r.ok)throw 0;
+    const r=await call({a:'file', pin, id:d.id});if(!r.ok)throw 0;
     if(d.m=='application/pdf'){
       const u=URL.createObjectURL(new Blob([Uint8Array.from(atob(r.d),c=>c.charCodeAt(0))],{type:'application/pdf'}));
       p.innerHTML=`<a class="bt" style="display:block;text-align:center;text-decoration:none" href="${u}" target="_blank">เปิด PDF เต็มจอ</a><iframe class="fr" src="${u}"></iframe>`;
